@@ -85,7 +85,6 @@ describe('/order', () => {
       };
       const response = await request(makeApp(service))
         .delete('/order')
-        .set('Content-Type', 'application/json')
         .send({ id: 12345 });
 
       expect(response.status).toBe(200);
