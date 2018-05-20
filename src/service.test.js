@@ -1,9 +1,27 @@
+const _ = require('lodash');
+const MongoClient = require('mongodb').MongoClient;
 const makeService = require('./service');
 
 describe('service', () => {
+  let client;
+  let db;
+
+  beforeAll(async () => {
+    client = await MongoClient.connect(process.env.CONNECTION_STRING, {
+      useNewUrlParser: true
+    });
+    db = client.db('test');
+  });
+  beforeEach(() => {
+    db = client.db('test');
+  });
+  afterEach(async () => {
+    await db.dropDatabase();
+  });
+
   describe('#createOrders', () => {
-    it('should work', async () => {
-      const service = await makeService();
+    it('should insert items and return them', async () => {
+      const service = await makeService(db);
       const items = await service.createOrders([
         {
           companyName: 'Żywiec Brewery',
@@ -25,6 +43,20 @@ describe('service', () => {
           }
         ])
       );
+    });
+  });
+
+  describe('#orders', () => {
+    it('should list all orders', async () => {
+      const service = await makeService(db);
+      const created = await service.createOrders(
+        _.range(10).map(i => ({
+          companyName: `company-${i}`,
+          customerAddress: `address-${i}`
+        }))
+      );
+      const items = await service.orders({});
+      expect(items).toEqual(expect.arrayContaining(created));
     });
   });
 });
