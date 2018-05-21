@@ -58,5 +58,32 @@ describe('service', () => {
       const items = await service.orders({});
       expect(items).toEqual(expect.arrayContaining(created));
     });
+    it('should filter orders by company', async () => {
+      const service = await makeService(db);
+      const created = await service.createOrders(
+        _.range(10).map(i => ({
+          companyName: `company-${i * 2}`,
+          customerAddress: `address-${i * 2}`
+        }))
+      );
+      const items = await service.orders({
+        companyName: '0'
+      });
+      expect(items).toEqual(
+        expect.arrayContaining([
+          {
+            _id: expect.anything(),
+            companyName: 'company-0',
+            customerAddress: 'address-0'
+          },
+          {
+            _id: expect.anything(),
+            companyName: 'company-10',
+            customerAddress: 'address-10'
+          }
+        ])
+      );
+    });
+    it('should filter orders by address');
   });
 });

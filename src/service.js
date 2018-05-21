@@ -1,6 +1,10 @@
 const MongoClient = require('mongodb').MongoClient;
 const connectionString = process.env.CONNECTION_STRING;
 
+const escape = s => {
+  return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+};
+
 module.exports = async db => {
   return {
     createOrders: async items => {
@@ -8,10 +12,19 @@ module.exports = async db => {
       const opResult = await db.collection('orders').insertMany(items);
       return opResult.ops;
     },
-    orders: async query => {
+    orders: async (query = {}) => {
       const opResult = await db
         .collection('orders')
-        .find()
+        .find(
+          Object.assign(
+            {},
+            query.companyName
+              ? {
+                  companyName: new RegExp(escape(query.companyName), 'ig')
+                }
+              : {}
+          )
+        )
         .toArray();
       return opResult;
     }
