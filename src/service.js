@@ -31,6 +31,9 @@ module.exports = async db => {
         .find(findQuery)
         .toArray();
       return opResult;
+    },
+    deleteOrder: async _id => {
+      return await db.collection('orders').deleteOne({ _id });
     }
   };
 };

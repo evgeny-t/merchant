@@ -115,4 +115,31 @@ describe('service', () => {
       );
     });
   });
+
+  describe('#deleteOrder', () => {
+    it('should delete an order by id', async () => {
+      const service = await makeService(db);
+      const data = _.range(10).map(i => ({
+        companyName: `company-${i}`,
+        customerAddress: `address-${i}`
+      }));
+      const created = await service.createOrders(data);
+      const items = await service.orders();
+      const id = _.chain(items)
+        .find(['companyName', 'company-4'])
+        .get('_id')
+        .value();
+      await service.deleteOrder(id);
+      const itemsAfterDelete = await service.orders();
+      expect(itemsAfterDelete).toHaveLength(created.length - 1);
+      expect(itemsAfterDelete).toEqual(
+        expect.arrayContaining(
+          _.chain(data)
+            .map(i => Object.assign({}, i, { _id: expect.anything() }))
+            .filter(_.negate(_.matchesProperty('companyName', 'company-4')))
+            .value()
+        )
+      );
+    });
+  });
 });
