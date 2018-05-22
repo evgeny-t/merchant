@@ -34,6 +34,20 @@ module.exports = async db => {
     },
     deleteOrder: async _id => {
       return await db.collection('orders').deleteOne({ _id });
+    },
+    stats: async () => {
+      return await db
+        .collection('orders')
+        .aggregate([
+          {
+            $group: {
+              _id: '$orderItem',
+              count: { $sum: 1 }
+            }
+          },
+          { $sort: { count: -1 } }
+        ])
+        .toArray();
     }
   };
 };

@@ -142,4 +142,24 @@ describe('service', () => {
       );
     });
   });
+
+  describe('#stats', () => {
+    it(`should return how often each item
+    has been ordered, in descending order`, async () => {
+      const service = await makeService(db);
+      await service.createOrders(
+        _.union(
+          _.range(3).map(i => ({ orderItem: 'Macbook' })),
+          _.range(137).map(i => ({ orderItem: 'Amerykańskie Pszeniczne' })),
+          _.range(10).map(i => ({ orderItem: 'Item' }))
+        )
+      );
+      const stats = await service.stats();
+      expect(stats).toEqual([
+        { _id: 'Amerykańskie Pszeniczne', count: 137 },
+        { _id: 'Item', count: 10 },
+        { _id: 'Macbook', count: 3 }
+      ]);
+    });
+  });
 });
