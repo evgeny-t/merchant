@@ -58,6 +58,7 @@ describe('service', () => {
       const items = await service.orders({});
       expect(items).toEqual(expect.arrayContaining(created));
     });
+
     it('should filter orders by company', async () => {
       const service = await makeService(db);
       const created = await service.createOrders(
@@ -83,7 +84,35 @@ describe('service', () => {
           }
         ])
       );
+      expect(items).toHaveLength(2);
     });
-    it('should filter orders by address');
+
+    it('should filter orders by address', async () => {
+      const service = await makeService(db);
+      const created = await service.createOrders(
+        _.range(10).map(i => ({
+          companyName: `company-${i * 2}`,
+          customerAddress: `address-${i * 2}`
+        }))
+      );
+      const items = await service.orders({
+        customerAddress: '4'
+      });
+      expect(items).toHaveLength(2);
+      expect(items).toEqual(
+        expect.arrayContaining([
+          {
+            _id: expect.anything(),
+            companyName: 'company-4',
+            customerAddress: 'address-4'
+          },
+          {
+            _id: expect.anything(),
+            companyName: 'company-14',
+            customerAddress: 'address-14'
+          }
+        ])
+      );
+    });
   });
 });

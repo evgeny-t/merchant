@@ -13,18 +13,22 @@ module.exports = async db => {
       return opResult.ops;
     },
     orders: async (query = {}) => {
+      let findQuery = {};
+      if (query.companyName) {
+        findQuery = Object.assign(findQuery, {
+          companyName: new RegExp(escape(query.companyName), 'ig')
+        });
+      }
+
+      if (query.customerAddress) {
+        findQuery = Object.assign(findQuery, {
+          customerAddress: new RegExp(escape(query.customerAddress), 'ig')
+        });
+      }
+
       const opResult = await db
         .collection('orders')
-        .find(
-          Object.assign(
-            {},
-            query.companyName
-              ? {
-                  companyName: new RegExp(escape(query.companyName), 'ig')
-                }
-              : {}
-          )
-        )
+        .find(findQuery)
         .toArray();
       return opResult;
     }
