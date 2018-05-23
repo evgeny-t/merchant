@@ -110,3 +110,16 @@ describe('/stats', () => {
     });
   });
 });
+
+describe('/company', () => {
+  it(`GET should get company info`);
+  it(`PUT should update company info`);
+  it(`DELETE should delete company info`);
+});
+
+test('/company/orders should return all orders bought by a company');
+test('/company/paid should get the amount of money paid by a company');
+
+test(
+  '/order/companies should get et all companies that bought a certain orderItem'
+);
