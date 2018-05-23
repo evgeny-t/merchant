@@ -162,4 +162,63 @@ describe('service', () => {
       ]);
     });
   });
+
+  describe('#ordersByCompany', () => {
+    it('should work');
+  });
+
+  describe('#ordersByCompany', () => {
+    it('companiesByOrder');
+  });
+
+  describe('company', () => {
+    describe('#get', () => {
+      it('#get', async () => {
+        const service = await makeService(db);
+        const created = await service.createOrders(
+          _.range(10).map(i => ({
+            companyName: `company-${i}`,
+            customerAddress: `address-${i}`
+          }))
+        );
+
+        const info = service.company.get('company-4');
+        return await expect(info).resolves.toEqual({
+          _id: expect.anything(),
+          companyName: 'company-4'
+        });
+      });
+    });
+    describe('#update', () => {
+      it('#update', async () => {
+        const service = await makeService(db);
+        const created = await service.createOrders(
+          _.range(10).map(i => ({
+            companyName: `company-${i}`,
+            customerAddress: `address-${i}`
+          }))
+        );
+
+        let info = service.company.get('company-4');
+        await expect(info).resolves.toEqual({
+          _id: expect.anything(),
+          companyName: 'company-4'
+        });
+
+        await service.company.update('company-4', { foo: 'bar' });
+        info = service.company.get('company-4');
+        await expect(info).resolves.toEqual({
+          _id: expect.anything(),
+          companyName: 'company-4',
+          foo: 'bar'
+        });
+      });
+    });
+    describe('#delete', () => {
+      it('#delete');
+    });
+    describe('#paid', () => {
+      it('#paid');
+    });
+  });
 });
