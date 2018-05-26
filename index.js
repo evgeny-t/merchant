@@ -1,11 +1,15 @@
 const createApp = require('./src/app');
+const createService = require('./src/service');
 const port = 3003;
-const app = createApp({
-  createOrders: async items => {
-    return items;
-  }
-});
 
-app.listen(port, () => {
-  console.log(`listening on ${port}`);
-});
+MongoClient.connect(process.env.CONNECTION_STRING, {
+  useNewUrlParser: true
+})
+  .then(client => client.db('merchant'))
+  .then(db => createService(db))
+  .then(service => {
+    const app = createApp(service);
+    app.listen(port, () => {
+      console.log(`listening on ${port}`);
+    });
+  });
