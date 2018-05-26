@@ -232,7 +232,16 @@ describe('service', () => {
       });
     });
     describe('#paid', () => {
-      it('#paid');
+      it('#paid', async () => {
+        const companyName = 'State Street';
+        const service = await makeService(db);
+        const created = await service.createOrders(
+          _.range(2).map(i => ({ companyName, price: (i + 1) * 10 }))
+        );
+
+        const paid = await service.company.paid(companyName);
+        expect(paid.amount).toBe(30);
+      });
     });
   });
 });

@@ -77,8 +77,23 @@ module.exports = async db => {
       delete: async companyName => {
         return await db.collection(COMPANY).findOneAndDelete({ companyName });
       },
-      paid: async name => {
-        return Promise.resolve();
+      paid: async companyName => {
+        return (await db
+          .collection(ORDER)
+          .aggregate([
+            {
+              $match: {
+                companyName
+              }
+            },
+            {
+              $group: {
+                _id: '$companyName',
+                amount: { $sum: '$price' }
+              }
+            }
+          ])
+          .toArray())[0];
       }
     }
   };
