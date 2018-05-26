@@ -44,6 +44,25 @@ describe('service', () => {
         ])
       );
     });
+    it('should create companies info', async () => {
+      const service = await makeService(db);
+      await service.createOrders([
+        {
+          companyName: '1'
+        },
+        {
+          companyName: '2'
+        },
+        {
+          companyName: '1'
+        }
+      ]);
+      const companies = await db
+        .collection('company')
+        .find({})
+        .toArray();
+      expect(companies).toHaveLength(2);
+    });
   });
 
   describe('#orders', () => {
@@ -164,11 +183,74 @@ describe('service', () => {
   });
 
   describe('#ordersByCompany', () => {
-    it('should work');
+    it('should retrieve all order bought by one company', async () => {
+      const companyName = 'Atlassian';
+      const service = await makeService(db);
+      await service.createOrders([
+        {
+          companyName,
+          orderItem: 'Agile Playbook'
+        },
+        { companyName, orderItem: 'Scrum Master' },
+        {
+          companyName,
+          orderItem: 'Hoodies'
+        },
+        {
+          companyName: 'GitHub',
+          orderItem: 'GitHub Mugs'
+        }
+      ]);
+
+      const orders = await service.ordersByCompany(companyName);
+      expect(orders).toHaveLength(3);
+      expect(orders).toEqual(
+        expect.arrayContaining([
+          {
+            _id: expect.anything(),
+            companyName,
+            orderItem: 'Agile Playbook'
+          },
+          {
+            _id: expect.anything(),
+            companyName,
+            orderItem: 'Scrum Master'
+          },
+          {
+            _id: expect.anything(),
+            companyName,
+            orderItem: 'Hoodies'
+          }
+        ])
+      );
+    });
   });
 
-  describe('#ordersByCompany', () => {
-    it('companiesByOrder');
+  describe('#companiesByOrder', () => {
+    it('should return all companies that bought a certain orderItem', async () => {
+      const service = await makeService(db);
+      // company: 0 1 2 0 1 2 0 1 2 0
+      //    item: 0 1 2 3 0 1 2 3 0 1
+      await service.createOrders(
+        _.range(10).map(i => ({
+          companyName: `${i % 3}`,
+          orderItem: `${i % 4}`
+        }))
+      );
+      service.company.update('1', { foo: 'bar' });
+      const companies = await service.companiesByOrder('3');
+      expect(companies).toEqual(
+        expect.arrayContaining([
+          {
+            companyName: '0'
+          },
+          {
+            companyName: '1',
+            foo: 'bar'
+          }
+        ])
+      );
+    });
   });
 
   describe('company', () => {

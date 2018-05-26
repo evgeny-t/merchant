@@ -14,9 +14,21 @@ module.exports = async db => {
     createOrders: async items => {
       // TODO: validate shape of items
       const opResult = await db.collection(ORDER).insertMany(items);
-      await db
-        .collection(COMPANY)
-        .insertMany(items.map(item => ({ companyName: item.companyName })));
+      await _.chain(items)
+        .uniqBy('companyName')
+        .map(item => () =>
+          db.collection(COMPANY).findOneAndUpdate(
+            { companyName: item.companyName },
+            {
+              $setOnInsert: {
+                companyName: item.companyName
+              }
+            },
+            { upsert: true }
+          )
+        )
+        .reduce((acc, cur) => acc.then(cur), Promise.resolve())
+        .value();
       return opResult.ops;
     },
     orders: async (query = {}) => {
@@ -57,10 +69,33 @@ module.exports = async db => {
         .toArray();
     },
     ordersByCompany: async companyName => {
-      return Promise.resolve();
+      return await db
+        .collection(ORDER)
+        .find({ companyName })
+        .toArray();
     },
     companiesByOrder: async orderItem => {
-      return Promise.resolve();
+      return await db
+        .collection(ORDER)
+        .aggregate([
+          /* {
+            $match: {
+              orderItem
+            },
+          }, {
+            $group: {
+              _id: '$companyName',
+            }
+          }, */ {
+            $lookup: {
+              from: 'company',
+              localField: 'companyName',
+              foreignField: 'companyName',
+              as: 'companies'
+            }
+          }
+        ])
+        .toArray();
     },
     company: {
       get: async companyName => {
