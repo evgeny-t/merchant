@@ -242,9 +242,11 @@ describe('service', () => {
       expect(companies).toEqual(
         expect.arrayContaining([
           {
+            _id: expect.anything(),
             companyName: '0'
           },
           {
+            _id: expect.anything(),
             companyName: '1',
             foo: 'bar'
           }

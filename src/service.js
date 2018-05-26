@@ -78,20 +78,30 @@ module.exports = async db => {
       return await db
         .collection(ORDER)
         .aggregate([
-          /* {
+          {
             $match: {
               orderItem
-            },
-          }, {
-            $group: {
-              _id: '$companyName',
             }
-          }, */ {
+          },
+          {
+            $group: {
+              _id: '$companyName'
+            }
+          },
+          {
             $lookup: {
               from: 'company',
-              localField: 'companyName',
+              localField: '_id',
               foreignField: 'companyName',
               as: 'companies'
+            }
+          },
+          {
+            $unwind: '$companies'
+          },
+          {
+            $replaceRoot: {
+              newRoot: '$companies'
             }
           }
         ])
