@@ -112,14 +112,129 @@ describe('/stats', () => {
 });
 
 describe('/company', () => {
-  it(`GET should get company info`);
-  it(`PUT should update company info`);
-  it(`DELETE should delete company info`);
+  it(`GET should get company info`, async () => {
+    const service = {
+      company: {
+        get: jest.fn(() =>
+          Promise.resolve({ companyName: 'State Street', foo: 'bar' })
+        )
+      }
+    };
+    const response = await request(makeApp(service))
+      .get(`/company?name=${encodeURIComponent('State Street')}`)
+      .send();
+    expect(service.company.get).toHaveBeenCalledWith('State Street');
+    expect(response.body).toEqual({
+      companyName: 'State Street',
+      foo: 'bar'
+    });
+  });
+  it(`PUT should update company info`, async () => {
+    const service = {
+      company: {
+        update: jest.fn(() => Promise.resolve())
+      }
+    };
+    const response = await request(makeApp(service))
+      .put(`/company`)
+      .send({
+        companyName: 'Atlassian',
+        info: {
+          foobar: 'qwerty'
+        }
+      });
+    expect(service.company.update).toHaveBeenCalledWith('Atlassian', {
+      foobar: 'qwerty'
+    });
+  });
+  it(`DELETE should delete company info`, async () => {
+    const service = {
+      company: {
+        delete: jest.fn(() => Promise.resolve())
+      }
+    };
+    const response = await request(makeApp(service))
+      .delete(`/company`)
+      .send({
+        companyName: 'GitHub'
+      });
+    expect(service.company.delete).toHaveBeenCalledWith('GitHub');
+  });
 });
 
-test('/company/orders should return all orders bought by a company');
-test('/company/paid should get the amount of money paid by a company');
+test('GET /company/orders should return all orders bought by a company', async () => {
+  const service = {
+    ordersByCompany: jest.fn(() =>
+      Promise.resolve([
+        {
+          companyName: 'BorderGuru',
+          orderItem: 'QWER',
+          price: 100
+        }
+      ])
+    )
+  };
+  const response = await request(makeApp(service))
+    .get(`/company/orders?name=${encodeURIComponent('BorderGuru')}`)
+    .send();
+  expect(response.body.items).toEqual(
+    expect.arrayContaining([
+      {
+        companyName: 'BorderGuru',
+        orderItem: 'QWER',
+        price: 100
+      }
+    ])
+  );
+  expect(service.ordersByCompany).toHaveBeenCalledWith('BorderGuru');
+});
 
-test(
-  '/order/companies should get et all companies that bought a certain orderItem'
-);
+test('GET /company/paid should get the amount of money paid by a company', async () => {
+  const service = {
+    company: {
+      paid: jest.fn(() =>
+        Promise.resolve({
+          amount: 1337
+        })
+      )
+    }
+  };
+  const response = await request(makeApp(service))
+    .get(`/company/paid?name=${encodeURIComponent('Foobar')}`)
+    .send();
+  expect(response.body.amount).toEqual(1337);
+  expect(service.company.paid).toHaveBeenCalledWith('Foobar');
+});
+
+test('GET /order/companies should get et all companies that bought a certain orderItem', async () => {
+  const service = {
+    companiesByOrder: jest.fn(() =>
+      Promise.resolve([
+        {
+          companyName: 'BorderGuru',
+          foo: 'bar'
+        },
+        {
+          companyName: 'Brain.fm',
+          qwerty: 42
+        }
+      ])
+    )
+  };
+  const response = await request(makeApp(service))
+    .get(`/order/companies?name=${encodeURIComponent('An Order Item')}`)
+    .send();
+  expect(response.body.items).toEqual(
+    expect.arrayContaining([
+      {
+        companyName: 'BorderGuru',
+        foo: 'bar'
+      },
+      {
+        companyName: 'Brain.fm',
+        qwerty: 42
+      }
+    ])
+  );
+  expect(service.companiesByOrder).toHaveBeenCalledWith('An Order Item');
+});

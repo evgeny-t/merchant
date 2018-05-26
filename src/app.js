@@ -62,5 +62,47 @@ module.exports = service => {
       .catch(error => res.status(500).send({ error }));
   });
 
+  app.get('/company', (req, res) => {
+    service.company
+      .get(req.query.name)
+      .then(company => res.status(200).send(company))
+      .catch(error => res.status(500).send({ error }));
+  });
+
+  app.put('/company', (req, res) => {
+    service.company
+      .update(req.body.companyName, req.body.info)
+      .then(() => res.status(200).send({}))
+      .catch(error => res.status(500).send({ error }));
+  });
+
+  app.delete('/company', (req, res) => {
+    service.company
+      .delete(req.body.companyName)
+      .then(() => res.status(200).send({}))
+      .catch(error => res.status(500).send({ error }));
+  });
+
+  app.get('/company/orders', (req, res) => {
+    service
+      .ordersByCompany(req.query.name)
+      .then(items => res.status(200).send({ items }))
+      .catch(error => res.status(500).send({ error }));
+  });
+
+  app.get('/company/paid', (req, res) => {
+    service.company
+      .paid(req.query.name)
+      .then(result => res.status(200).send(result))
+      .catch(error => res.status(500).send({ error }));
+  });
+
+  app.get('/order/companies', (req, res) => {
+    service
+      .companiesByOrder(req.query.name)
+      .then(items => res.status(200).send({ items }))
+      .catch(error => res.status(500).send({ error }));
+  });
+
   return app;
 };
