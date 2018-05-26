@@ -74,8 +74,8 @@ module.exports = async db => {
             { $set: _.omit(info, 'companyName') }
           );
       },
-      delete: async name => {
-        return Promise.resolve();
+      delete: async companyName => {
+        return await db.collection(COMPANY).findOneAndDelete({ companyName });
       },
       paid: async name => {
         return Promise.resolve();

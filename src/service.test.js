@@ -182,8 +182,8 @@ describe('service', () => {
           }))
         );
 
-        const info = service.company.get('company-4');
-        return await expect(info).resolves.toEqual({
+        const info = await service.company.get('company-4');
+        return expect(info).toEqual({
           _id: expect.anything(),
           companyName: 'company-4'
         });
@@ -199,15 +199,15 @@ describe('service', () => {
           }))
         );
 
-        let info = service.company.get('company-4');
-        await expect(info).resolves.toEqual({
+        let info = await service.company.get('company-4');
+        expect(info).toEqual({
           _id: expect.anything(),
           companyName: 'company-4'
         });
 
         await service.company.update('company-4', { foo: 'bar' });
-        info = service.company.get('company-4');
-        await expect(info).resolves.toEqual({
+        info = await service.company.get('company-4');
+        expect(info).toEqual({
           _id: expect.anything(),
           companyName: 'company-4',
           foo: 'bar'
@@ -215,7 +215,21 @@ describe('service', () => {
       });
     });
     describe('#delete', () => {
-      it('#delete');
+      it('#delete', async () => {
+        const companyName = 'State Street';
+        const service = await makeService(db);
+        const created = await service.createOrders([
+          {
+            companyName,
+            orderItem: '20-years-old server'
+          }
+        ]);
+        let company = await service.company.get(companyName);
+        expect(company).toMatchObject({ companyName });
+        await service.company.delete(companyName);
+        company = await service.company.get(companyName);
+        expect(company).toBeFalsy();
+      });
     });
     describe('#paid', () => {
       it('#paid');
