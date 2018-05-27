@@ -1,3 +1,7 @@
+require('dotenv').config();
+
+const MongoClient = require('mongodb').MongoClient;
+
 const createApp = require('./src/app');
 const createService = require('./src/service');
 const port = 3003;
