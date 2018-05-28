@@ -3,7 +3,7 @@
 ## How do I run it?
 
 ```bash
-echo "CONNECTION_STRING='mongodb+srv://<url to mongo instance>'" >> .env
+echo "CONNECTION_STRING=mongodb+srv://<url to mongo instance>" >> .env
 npm i -D && npm start
 ```
 
