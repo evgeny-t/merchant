@@ -17,6 +17,8 @@ const makeOrder = (
   currency
 });
 
+const handleError = (req, res) => error => res.status(500).send({ error });
+
 module.exports = service => {
   const app = express();
   app.use(bodyParser.text());
@@ -35,7 +37,7 @@ module.exports = service => {
           service
             .createOrders(items)
             .then(items => res.status(200).send({ items }))
-            .catch(error => res.status(500).send({ error }));
+            .catch(handleError(req, res));
         }
       }
     );
@@ -45,63 +47,63 @@ module.exports = service => {
     service
       .orders(req.query)
       .then(orders => res.status(200).send({ orders }))
-      .catch(error => res.status(500).send({ error }));
+      .catch(handleError(req, res));
   });
 
   app.delete('/order', (req, res) => {
     service
       .deleteOrder(req.body.id)
       .then(() => res.sendStatus(200))
-      .catch(error => res.status(500).send({ error }));
+      .catch(handleError(req, res));
   });
 
   app.get('/stats', (req, res) => {
     service
       .stats()
       .then(items => res.status(200).send({ items }))
-      .catch(error => res.status(500).send({ error }));
+      .catch(handleError(req, res));
   });
 
   app.get('/company', (req, res) => {
     service.company
       .get(req.query.name)
       .then(company => res.status(200).send(company))
-      .catch(error => res.status(500).send({ error }));
+      .catch(handleError(req, res));
   });
 
   app.put('/company', (req, res) => {
     service.company
       .update(req.body.companyName, req.body.info)
       .then(() => res.status(200).send({}))
-      .catch(error => res.status(500).send({ error }));
+      .catch(handleError(req, res));
   });
 
   app.delete('/company', (req, res) => {
     service.company
       .delete(req.body.companyName)
       .then(() => res.status(200).send({}))
-      .catch(error => res.status(500).send({ error }));
+      .catch(handleError(req, res));
   });
 
   app.get('/company/orders', (req, res) => {
     service
       .ordersByCompany(req.query.name)
       .then(items => res.status(200).send({ items }))
-      .catch(error => res.status(500).send({ error }));
+      .catch(handleError(req, res));
   });
 
   app.get('/company/paid', (req, res) => {
     service.company
       .paid(req.query.name)
       .then(result => res.status(200).send(result))
-      .catch(error => res.status(500).send({ error }));
+      .catch(handleError(req, res));
   });
 
   app.get('/order/companies', (req, res) => {
     service
       .companiesByOrder(req.query.name)
       .then(items => res.status(200).send({ items }))
-      .catch(error => res.status(500).send({ error }));
+      .catch(handleError(req, res));
   });
 
   return app;
